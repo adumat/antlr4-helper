@@ -313,11 +313,9 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
 
     addTokenListener(listener: (token: Token) => void) {
         this.tokenSubject.asObservable().subscribe(listener);
-
     }
 
-
-    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | undefined): void {
+    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | Array<AntlrRuleError> | undefined): void {
         this.customValidatorSubject.asObservable()
             .pipe(filter(rule => this.getRuleName(rule) === ruleName))
             .subscribe((rule) => {
@@ -325,19 +323,27 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
                 const error = validator(wrapper);
 
                 if (!_.isNil(error)) {
-                    this.errorHandler.addError(error);
+                    if (error instanceof Array) {
+                        error.forEach((err: AntlrRuleError) => this.errorHandler.addError(err));
+                    } else {
+                        this.errorHandler.addError(error);
+                    }
                 }
             });
     }
 
-    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => AntlrRuleError | undefined) {
+    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => AntlrRuleError | Array<AntlrRuleError> | undefined) {
         this.customValidatorSubject.asObservable()
             .pipe(filter(rule => this.doesRuleMatchClass(rule, ruleClass)))
             .subscribe((rule) => {
                 const error = validator(rule as any);
 
                 if (!_.isNil(error)) {
-                    this.errorHandler.addError(error);
+                    if (error instanceof Array) {
+                        error.forEach((err: AntlrRuleError) => this.errorHandler.addError(err));
+                    } else {
+                        this.errorHandler.addError(error);
+                    }
                 }
             });
     }
