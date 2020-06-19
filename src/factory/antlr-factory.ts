@@ -2,17 +2,20 @@ import {InputStream, CommonTokenStream, Lexer, Parser, ParserRuleContext} from '
 
 export interface AntlrFactory {
     readonly createLexer: (stream: InputStream) => Lexer;
+    readonly getAdditionalChannels: (lexer: Lexer) => Array<CommonTokenStream>;
     readonly createParser: (tokenStream: CommonTokenStream) => Parser;
     readonly createAndInvokeRootRule: (parser: Parser) => ParserRuleContext;
 }
 
 export class AntlrFactoryBuilder {
     private createLexer?: (stream: InputStream) => Lexer;
+    private getAdditionalChannels?: (lexer: Lexer) => Array<CommonTokenStream>;
     private createParser?: (tokenStream: CommonTokenStream) => Parser;
     private createRootRule?: (parser: Parser) => ParserRuleContext;
 
     constructor() {
         this.createLexer = () => null;
+        this.getAdditionalChannels = () => [];
         this.createParser = () => null;
         this.createRootRule = () => null;
     }
@@ -32,9 +35,15 @@ export class AntlrFactoryBuilder {
         return this;
     }
 
+    additionalChannels(additionalChannels?: (lexer: Lexer) => Array<CommonTokenStream>): AntlrFactoryBuilder {
+        this.getAdditionalChannels = additionalChannels;
+        return this;
+    }
+
     build(): AntlrFactory {
         return {
             createLexer: this.createLexer,
+            getAdditionalChannels: this.getAdditionalChannels,
             createParser: this.createParser,
             createAndInvokeRootRule: this.createRootRule
         };

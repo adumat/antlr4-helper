@@ -35,6 +35,7 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
     private tokenTable: TokenTable;
     private errorHandler: ErrorRuleHandler;
     private textBuffer: TextBuffer;
+    private additionalStream: Array<CommonTokenStream>;
     private stack: ParserRuleContext[];
     private ruleWrapperStack: AntlrRuleWrapper[];
     private functionalRuleParser: FunctionalRuleParser;
@@ -60,7 +61,6 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
         return this.inputStream;
     }
 
-
     setLexer(lexer: Lexer): void {
         this.lexer = lexer;
     }
@@ -77,8 +77,24 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
         return this.ruleWrapperStack;
     }
 
-    getAllTokens(): AntlrTokenWrapper[] {
-        return Array.from(this.tokenTable.tokenMap.keys()).map((token) => new ImmutableAntlrTokenWrapper(token, this));
+    getTokensOfAdditionalStreams(): AntlrTokenWrapper[] {
+        const toRet: AntlrTokenWrapper[] = [];
+        this.additionalStream.forEach((stream: CommonTokenStream) => {
+            stream.tokens.map((token) => {
+                if (token.channel === stream.channel) {
+                    toRet.push(new ImmutableAntlrTokenWrapper(token, this));
+                }
+            });
+        });
+        return toRet;
+    }
+
+    getAllTokens(withAdditionalStream = false): AntlrTokenWrapper[] {
+        const toRet = Array.from(this.tokenTable.tokenMap.keys()).map((token) => new ImmutableAntlrTokenWrapper(token, this));
+        if (withAdditionalStream) {
+            return this.getTokensOfAdditionalStreams().concat(toRet);
+        }
+        return toRet;
     }
 
     hasTextChanged(): boolean {
@@ -125,6 +141,11 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
         lexer.addErrorListener(new LexErrorHandler(this.errorHandler));
 
         const tokenStream = new CommonTokenStream(lexer);
+        this.additionalStream = this.factory.getAdditionalChannels(lexer);
+        this.additionalStream.forEach(stream => {
+            stream.fill();
+            this.lexer.reset();
+        });
 
         const parser = this.factory.createParser(tokenStream);
         parser.removeErrorListeners();

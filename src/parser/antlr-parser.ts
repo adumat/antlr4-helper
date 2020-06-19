@@ -389,7 +389,9 @@ export interface AntlrParser {
 
     getAllRules(): AntlrRuleWrapper[];
 
-    getAllTokens(): AntlrTokenWrapper[];
+    getAllTokens(withAdditionalStream?: boolean): AntlrTokenWrapper[];
+
+    getTokensOfAdditionalStreams(): AntlrTokenWrapper[];
 
     /**
      * Compare two positions, return 0 if they are the same, a negative

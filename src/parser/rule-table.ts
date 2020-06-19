@@ -32,6 +32,9 @@ export class RuleTable {
         const numOfLines = this.ruleTable.length;
 
         for (let line = 0; line < numOfLines; line++) {
+            if (!this.ruleTable[line]) {
+                continue;
+            }
             const numOfColumns = this.ruleTable[line].length;
 
             for (let col = 0; col <= numOfColumns; col++) {

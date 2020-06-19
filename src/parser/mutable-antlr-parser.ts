@@ -1,5 +1,5 @@
 import {AntlrFactory} from '../factory/antlr-factory';
-import {InputStream, Lexer, ParserRuleContext, Token} from 'antlr4';
+import {InputStream, Lexer, ParserRuleContext, Token, CommonTokenStream} from 'antlr4';
 import {createBuffer, createTextRange, MutableTextRange, TextBuffer} from 'text-manipulation';
 import {AntlrParser} from './antlr-parser';
 import {AntlrRange, AntlrRuleClass} from '../';
@@ -90,8 +90,16 @@ export class MutableAntlrParser implements AntlrParser {
         return this.parser.getAllRules().map((rule) => new MutableAntlrRuleWrapper(rule.getRule(), this));
     }
 
-    getAllTokens(): AntlrTokenWrapper[] {
-        return Array.from(this.tokenTable.tokenMap.keys()).map((token) => new MutableAntlrTokenWrapper(token, this));
+    getTokensOfAdditionalStreams(): AntlrTokenWrapper[] {
+        return this.parser.getTokensOfAdditionalStreams();
+    }
+
+    getAllTokens(withAdditionalStream = false): AntlrTokenWrapper[] {
+        const toRet = Array.from(this.tokenTable.tokenMap.keys()).map((token) => new MutableAntlrTokenWrapper(token, this));
+        if (withAdditionalStream) {
+            return this.getTokensOfAdditionalStreams().concat(toRet);
+        }
+        return toRet;
     }
 
     doesRuleExist(rule: ParserRuleContext): boolean {
