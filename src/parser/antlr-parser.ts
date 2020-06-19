@@ -136,11 +136,11 @@ export interface AntlrParser {
      * to the parser. If nothing is reported than the validation was a success.
      *
      * @param {AntlrRuleClass<ParserRuleContext>} ruleClass
-     * @param {(rule: T) => (AntlrRuleError | undefined)} validator
+     * @param {(rule: T) => (AntlrRuleError | AntlrRuleError[] | undefined)} validator
      */
-    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => AntlrRuleError | undefined): void;
+    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => AntlrRuleError | AntlrRuleError[] | undefined): void;
 
-    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | undefined): void;
+    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | AntlrRuleError[] | undefined): void;
 
     onRuleEnter(ruleName: string, callback: (ruleWrapper: AntlrRuleWrapper) => void): void;
 

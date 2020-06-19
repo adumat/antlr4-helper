@@ -301,13 +301,13 @@ export class MutableAntlrParser implements AntlrParser {
         this.parser.addExitRuleListener(ruleClass, listener);
     }
 
-    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | undefined): void {
+    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | AntlrRuleError[] | undefined): void {
         this.parser.addValidator(ruleName, (wrapper) => {
             return validator(new MutableAntlrRuleWrapper(wrapper.getRule(), this));
         });
     }
 
-    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => (AntlrRuleError | undefined)) {
+    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => (AntlrRuleError | AntlrRuleError[] | undefined)) {
         this.parser.addCustomRuleValidator(ruleClass, validator);
     }
 

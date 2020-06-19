@@ -336,7 +336,7 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
         this.tokenSubject.asObservable().subscribe(listener);
     }
 
-    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | Array<AntlrRuleError> | undefined): void {
+    addValidator(ruleName: string, validator: (rule: AntlrRuleWrapper) => AntlrRuleError | AntlrRuleError[] | undefined): void {
         this.customValidatorSubject.asObservable()
             .pipe(filter(rule => this.getRuleName(rule) === ruleName))
             .subscribe((rule) => {
@@ -353,7 +353,7 @@ export class ImmutableAntlrParser implements ParseTreeListener, AntlrParser {
             });
     }
 
-    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => AntlrRuleError | Array<AntlrRuleError> | undefined) {
+    addCustomRuleValidator<T extends ParserRuleContext>(ruleClass: AntlrRuleClass<ParserRuleContext>, validator: (rule: T) => AntlrRuleError | AntlrRuleError[] | undefined) {
         this.customValidatorSubject.asObservable()
             .pipe(filter(rule => this.doesRuleMatchClass(rule, ruleClass)))
             .subscribe((rule) => {
